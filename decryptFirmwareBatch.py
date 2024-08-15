@@ -91,9 +91,13 @@ def processBuildID(url, buildID, build, vers):
       print("[.] downloading component '%s' (%s)"%(cKey,filename))
       data = coreFWKEYDBLib.downloadFileFromFirmware(url, filename)
       if not len(data):
-        print("[!] Failed downloading component '%s' (%s) from url '%s', skipping buildID!"%(cKey,filename,url))
-        return
-      kbag = coreFWKEYDBLib.getKBAGFromFiledata(data)
+        print("[!] Failed downloading component '%s' (%s), skipping component!"%(cKey,filename))
+        continue
+      try:
+        kbag = coreFWKEYDBLib.getKBAGFromFiledata(data)
+      except coreFWKEYDBLib.KeybagException:
+        print("[!] Failed to get keybag for component '%s' (%s), skipping component!"%(cKey,filename))
+        continue
       if curElemIsRamdisk:
         hasAnyRamdisk = True
       if len(kbag):

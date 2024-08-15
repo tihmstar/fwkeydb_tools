@@ -8,6 +8,9 @@ CURRENT_KEYFILES_VERSION = "1.0"
 class BadImageException(Exception):
   pass
 
+class KeybagException(Exception):
+  pass
+
 def getDate():
   return datetime.now().strftime("%FT%TZ")
 
@@ -104,7 +107,7 @@ def getKBAGFromFiledata(data):
   img3ret = getKBAGFromIMG3Filedata(data=data)
   if img3ret != None:
     return img3ret
-  raise Exception("Failed to get KBAG from file!")
+  raise KeybagException("Failed to get KBAG from file!")
 
 def testDecryption(data, iv, key):
   try:
