@@ -163,11 +163,11 @@ def processBuildID(url, buildID, build, vers):
 
 def processUrl(url):
   print("[+] Processing '%s'"%(url))
-  # try:
-  buildmanifest = coreFWKEYDBLib.getBuildManifest(url)
-  # except:
-  #   print("Failed to get BuildManifest from url '%s'"%(url))
-  #   return
+  try:
+    buildmanifest = coreFWKEYDBLib.getBuildManifest(url)
+  except:
+    print("Failed to get BuildManifest from url '%s'"%(url))
+    return
   build = buildmanifest["ProductBuildVersion"]
   vers = buildmanifest["ProductVersion"]
   for buildID in buildmanifest["BuildIdentities"]:
