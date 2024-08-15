@@ -177,15 +177,10 @@ def processUrl(url):
 if __name__ == '__main__':
   f = None
   if len(sys.argv) < 2:
-    print("Usage: %s <links_file.txt>"%(sys.argv[0]))
+    print("Usage: echo <url> | %s"%(sys.argv[0]))
 
   moduleDecryptor.init()
-
-  infile = sys.argv[1]
-  if infile == "-":
-    f = sys.stdin
-  else:
-    f = open(infile, "r")
+  f = sys.stdin
 
   fileIsEOF = False
   while True:
