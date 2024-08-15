@@ -90,7 +90,9 @@ def processBuildID(url, buildID, build, vers):
     else:
       print("[.] downloading component '%s' (%s)"%(cKey,filename))
       data = coreFWKEYDBLib.downloadFileFromFirmware(url, filename)
-      assert (len(data))
+      if not len(data):
+        print("[!] Failed downloading component '%s' (%s) from url '%s', skipping buildID!"%(cKey,filename,url))
+        return
       kbag = coreFWKEYDBLib.getKBAGFromFiledata(data)
       if curElemIsRamdisk:
         hasAnyRamdisk = True
