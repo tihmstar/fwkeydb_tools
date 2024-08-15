@@ -143,13 +143,16 @@ def processBuildID(url, buildID, build, vers):
       keys[elemKey]["key"] = key
     keysfile["keys"] = keys
 
-  if not isOta or hasAnyRamdisk:
-    urls = keysfile.get("urls", [])
-    if not url in urls:
-      urls.append(url)
-    keysfile["urls"] = urls
+  if url[0:4] != "http":
+    print("[!] Skipping non-remote url '%s'"%(url))
   else:
-    print("[!] Skipping OTA url without ramdisk '%s'"%(url))
+    if not isOta or hasAnyRamdisk:
+      urls = keysfile.get("urls", [])
+      if not url in urls:
+        urls.append(url)
+      keysfile["urls"] = urls
+    else:
+      print("[!] Skipping OTA url without ramdisk '%s'"%(url))
   if hasAnyKeys or not needsAnyKeys:
     try:
       os.makedirs(pathkeysdirs)
