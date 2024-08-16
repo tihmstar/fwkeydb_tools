@@ -114,7 +114,7 @@ def testIMG4Decryption(data, iv, key):
     iv_cmd = (" --iv %s"%(iv))
   if key:
     key_cmd = (" --key %s"%(key))
-  p = subprocess.Popen("img4tool --iv %s --key %s -e -o - -"%(iv_cmd,key_cmd), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+  p = subprocess.Popen("img4tool%s%s -e -o - -"%(iv_cmd,key_cmd), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
   p.stdin.write(data)
   p.stdin.close()
   output = p.stdout.read()
