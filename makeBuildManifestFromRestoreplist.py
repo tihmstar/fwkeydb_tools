@@ -143,6 +143,7 @@ def makeBuildManifestFromRestoreplistInURL(url):
   p_erasebuildidInfo["Variant"] = "Customer Erase Install (IPSW)"
 
   if p_updateManifest:
+    p_updatebuildidInfo = copy.copy(p_buildidInfo)
     p_updatebuildidInfo["RestoreBehavior"] = "Update"
     p_updatebuildidInfo["Variant"] = "Customer Upgrade Install (IPSW)"
 
