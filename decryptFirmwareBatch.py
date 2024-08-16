@@ -56,7 +56,8 @@ def processBuildID(url, buildID, build, vers):
   keysfile["version"] = keysVersion
 
   keysfile["ProductType"] = product
-  keysfile["BuildTrain"] = info["BuildTrain"]
+  if "BuildTrain" in info:
+    keysfile["BuildTrain"] = info["BuildTrain"]
   keysfile["ProductBuildVersion"] = build
   keysfile["ProductVersion"] = vers
   keysfile["cpid"] = hex(cpid)
@@ -159,7 +160,7 @@ def processBuildID(url, buildID, build, vers):
       keysfile["urls"] = urls
     else:
       print("[!] Skipping OTA url without ramdisk '%s'"%(url))
-  if hasAnyKeys or not needsAnyKeys:
+  if hasAnyKeys or not needsAnyKeys and "keys" in keysfile:
     try:
       os.makedirs(pathkeysdirs)
     except FileExistsError:
@@ -172,10 +173,18 @@ def processBuildID(url, buildID, build, vers):
 
 def processUrl(url):
   print("[+] Processing '%s'"%(url))
+  buildmanifest = None
   try:
     buildmanifest = coreFWKEYDBLib.getBuildManifest(url)
   except:
-    print("Failed to get BuildManifest from url '%s'"%(url))
+    print("[!] Failed to get BuildManifest, retrying by converting from Restore.plist")
+    try:
+      buildmanifest = coreFWKEYDBLib.makeBuildManifestFromRestoreplistInURL(url)
+    except:
+      print("[!] Failed to convert Restore.plist to BuildManifest")
+
+  if not buildmanifest:
+    print("[!] Failed to get BuildManifest, skipping url '%s'"%(url))
     return
   build = buildmanifest["ProductBuildVersion"]
   vers = buildmanifest["ProductVersion"]
@@ -194,7 +203,7 @@ if __name__ == '__main__':
   fileIsEOF = False
   while True:
     l = ""
-    while True:
+    while not f.closed:
       c = f.read(1)
       if c == "":
         fileIsEOF = True
@@ -202,6 +211,6 @@ if __name__ == '__main__':
       if c == '\n':
         break
       l+=c
-    if fileIsEOF:
+    if fileIsEOF or f.closed:
       break
     processUrl(l)

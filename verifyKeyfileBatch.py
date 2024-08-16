@@ -55,11 +55,19 @@ def processKeyfilePaths(path):
 
   vers = keysfile["ProductVersion"]
   build = keysfile["ProductBuildVersion"]
-  train = keysfile["BuildTrain"]
+  train = keysfile.get("BuildTrain", None)
 
   keys = keysfile["keys"]
   for url in keysfile["urls"]:
-    buildmanifest = coreFWKEYDBLib.getBuildManifest(url)
+    try:
+      buildmanifest = coreFWKEYDBLib.getBuildManifest(url)
+    except:
+      print("[!] Failed to get BuildManifest, retrying by converting from Restore.plist")
+      try:
+        buildmanifest = coreFWKEYDBLib.makeBuildManifestFromRestoreplistInURL(url)
+      except:
+        print("[!] Failed to convert Restore.plist to BuildManifest")
+        raise
     bvers = buildmanifest["ProductVersion"]
     bbuild = buildmanifest["ProductBuildVersion"]
     if bvers != vers:
@@ -101,27 +109,17 @@ def processKeyfilePaths(path):
           if dec_iv or dec_key:
             if not dec_iv or not dec_key:
               raise BadKeyEntryException("Got only one of (iv,key) but not both!")
-            eprint("[.] Testing decryption of file '%s' ... "%(mFilename), end="")
-            if not coreFWKEYDBLib.testDecryption(data, dec_iv, dec_key):
-              eprint("FAIL")
-              raise BadKeyEntryException("Bad IV/KEY. Decryption failed for file '%s'"%(mFilename))
-            eprint("OK")
+          eprint("[.] Testing decryption of file '%s' ... "%(mFilename), end="")
+          if not coreFWKEYDBLib.testDecryption(data, dec_iv, dec_key):
+            eprint("FAIL")
+            raise BadKeyEntryException("Bad IV/KEY. Decryption failed for file '%s'"%(mFilename))
+          eprint("OK")
           del keys[mFilename]
   if len(keys):
     raise UnverifiedEntriesException("Failed to validate the following components:",keys.keys())
 
 if __name__ == '__main__':
-  f = None
-  if len(sys.argv) < 2:
-    eprint("Usage: find keys -type f | python %s -"%(sys.argv[0]))
-    exit(1)
-
-  infile = sys.argv[1]
-  if infile == "-":
-    f = sys.stdin
-  else:
-    eprint("Should use stdin probably");
-    exit(1)
+  f = sys.stdin
 
   numberOfUnsuccessfullKeyfiles = 0
 
