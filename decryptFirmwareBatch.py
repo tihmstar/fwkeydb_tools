@@ -185,8 +185,8 @@ def processUrl(url):
     
 if __name__ == '__main__':
   f = None
-  if len(sys.argv) < 2:
-    print("Usage: echo <url> | %s"%(sys.argv[0]))
+  # if len(sys.argv) < 2:
+  #   print("Usage: echo <url> | %s"%(sys.argv[0]))
 
   moduleDecryptor.init()
   f = sys.stdin
