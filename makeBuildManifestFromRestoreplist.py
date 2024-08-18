@@ -1,8 +1,10 @@
 from Crypto.Hash import SHA1
 import copy
-import coreFWKEYDBLib
 import plistlib
 import sys
+
+import coreFWKEYDBLib
+import irecv_device
 
 
 def makeBuildManifestFromRestoreplistInURL(url):
@@ -19,6 +21,8 @@ def makeBuildManifestFromRestoreplistInURL(url):
       cpid = dm.get("CPID", 0x8900)
       if bdid != 0:
         break
+  if bdid == 0 and boardConfig != "m68ap":
+    bdid = irecv_device.bdidForBardconfig(boardConfig)
   if not boardConfig:
     raise Exception("Failed to get boarconfig")
   p_all_flash = ("Firmware/all_flash/all_flash.%s.%s" % (boardConfig,"production"))

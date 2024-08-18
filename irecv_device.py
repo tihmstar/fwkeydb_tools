@@ -285,3 +285,9 @@ def bdidForProductAndCPID(product, cpid):
     if d[0] == product and d[3] == cpid:
       return d[2]
   raise Exception("Failed to find BDID for Product '%s' and cpid '0x%x'"%(product,cpid))
+
+def bdidForBardconfig(boardconfig):
+  for d in irecv_devices:
+    if d[1] == boardconfig:
+      return d[2]
+  raise Exception("Failed to find BDID for boardconfig '%s'"%(boardconfig))
