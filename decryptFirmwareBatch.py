@@ -11,7 +11,7 @@ import irecv_device
 #RUN: ./listURLsForDevice.sh iPhone7,2 | python decryptFirmwareBatch.py -
 
 SKIP_EXISTING_KEYFILES = False
-BAD_KEYS_ARE_FATAL=False
+BAD_KEYS_ARE_FATAL=True
 
 
 KEYS_DIRECTORY = "keys/"
