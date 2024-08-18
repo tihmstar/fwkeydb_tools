@@ -139,7 +139,6 @@ def processBuildID(url, buildID, build, vers):
     elemValue = keys.get(elemKey, {})
     elemValue["kbag"] = kbag
     elemValue["filename"] = filename
-    elemValue["date"] = date
     elemDigests = elemValue.get("digests", [])
     if not digestPrintable in elemDigests:
         elemDigests.append(digestPrintable)
@@ -156,6 +155,16 @@ def processBuildID(url, buildID, build, vers):
     if not variant in elemVariants:
         elemVariants.append(variant)
     elemValue["variants"] = elemVariants
+
+    if True:
+      old_elemValue = keys.get(elemKey, {})
+      old_date = old_elemValue.get("date", None)
+      elemValue["date"] = old_date
+      if old_elemValue == elemValue:
+        #Don't just update the date
+        continue
+
+    elemValue["date"] = date
     keys[elemKey] = elemValue
     if iv != None and key != None:
       keys[elemKey]["iv"] = iv
