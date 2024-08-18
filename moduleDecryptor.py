@@ -53,9 +53,10 @@ def init():
     modules.append(m)
     print("[*] Imported decryption module '%s'"%(mname))
 
-def decryptKBAG(component, cpid, kbag):
-  for m in modules:
+def decryptKBAG(component, cpid, kbag, startModuleIndex = 0):
+  for i in range(startModuleIndex,len(modules)):
+    m = modules[i]
     retval = m.decryptKBAG(component, cpid, kbag)
     if retval:
-      return retval
-  return None
+      return retval,i
+  return None,None

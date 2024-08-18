@@ -10,9 +10,11 @@ import irecv_device
 
 #RUN: ./listURLsForDevice.sh iPhone7,2 | python decryptFirmwareBatch.py -
 
+SKIP_EXISTING_KEYFILES = False
+BAD_KEYS_ARE_FATAL=False
+
 
 KEYS_DIRECTORY = "keys/"
-SKIP_EXISTING_KEYFILES = False
 
 processedFilesHashes = {}
 
@@ -101,24 +103,34 @@ def processBuildID(url, buildID, build, vers):
         continue
       if curElemIsRamdisk:
         hasAnyRamdisk = True
-      if len(kbag):
-        needsAnyKeys = True
-        kiv = moduleDecryptor.decryptKBAG(component=cKey, cpid=cpid, kbag=kbag)
-        if kiv:
-          iv,key = kiv
+
+      decryptionWasSuccessful = False
+      decryptModuleIdx = -1;
+      while decryptModuleIdx != None:
+        decryptModuleIdx += 1
+        if len(kbag):
+          needsAnyKeys = True
+          kiv,decryptModuleIdx = moduleDecryptor.decryptKBAG(component=cKey, cpid=cpid, kbag=kbag, startModuleIndex=decryptModuleIdx)
+          if kiv:
+            iv,key = kiv
         else:
-          print("[!] Failed to decrypt component '%s'"%(cKey))
+          decryptModuleIdx = None
+          iv = ""
+          key = ""
+        if coreFWKEYDBLib.testDecryption(data=data, iv=iv, key=key):
+          decryptionWasSuccessful = True
+          break
+
+      if not decryptionWasSuccessful:
+        print("[!] Failed to decrypt component '%s'"%(cKey))
+        assert not BAD_KEYS_ARE_FATAL
         if iv or key:
-          if not coreFWKEYDBLib.testDecryption(data=data, iv=iv, key=key):
-            print("[!] Failed verifying decrypted IV/KEY for component '%s'"%(cKey))
-            assert 0
-            iv = None
-            key = None
-          else:
-            hasAnyKeys = True
+          iv = None
+          key = None
       else:
-        iv = ""
-        key = ""
+        if iv or key:
+          hasAnyKeys = True
+
       processedFilesHashes[digest] = {
         "iv": iv,
         "key": key,
