@@ -17,7 +17,8 @@ def makeBuildManifestFromRestoreplistInURL(url):
       boardConfig = c_bc
       bdid = dm.get("BDID", 0)
       cpid = dm.get("CPID", 0x8900)
-      break
+      if bdid != 0:
+        break
   if not boardConfig:
     raise Exception("Failed to get boarconfig")
   p_all_flash = ("Firmware/all_flash/all_flash.%s.%s" % (boardConfig,"production"))
