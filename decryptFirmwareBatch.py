@@ -89,6 +89,9 @@ def processBuildID(url, buildID, build, vers):
       iv = ikk["iv"]
       key = ikk["key"]
       kbag = ikk["kbag"]
+      if iv and key:
+          print("[.] cached component '%s' with iv '%s' key '%s'"%(cKey,iv,key))
+          hasAnyKeys = True
     else:
       print("[.] downloading component '%s' (%s)"%(cKey,filename))
       data = coreFWKEYDBLib.downloadFileFromFirmware(url, filename)
@@ -103,35 +106,35 @@ def processBuildID(url, buildID, build, vers):
       if curElemIsRamdisk:
         hasAnyRamdisk = True
 
-    decryptionWasSuccessful = False
-    decryptModuleIdx = -1;
-    while decryptModuleIdx != None:
-      decryptModuleIdx += 1
-      if len(kbag):
-        needsAnyKeys = True
-        kiv,decryptModuleIdx = moduleDecryptor.decryptKBAG(component=cKey, cpid=cpid, kbag=kbag, startModuleIndex=decryptModuleIdx)
-        if kiv:
-          iv,key = kiv
-      else:
-        decryptModuleIdx = None
-        iv = ""
-        key = ""
-      if coreFWKEYDBLib.testDecryption(data=data, iv=iv, key=key):
-        decryptionWasSuccessful = True
-        break
+      decryptionWasSuccessful = False
+      decryptModuleIdx = -1;
+      while decryptModuleIdx != None:
+        decryptModuleIdx += 1
+        if len(kbag):
+          needsAnyKeys = True
+          kiv,decryptModuleIdx = moduleDecryptor.decryptKBAG(component=cKey, cpid=cpid, kbag=kbag, startModuleIndex=decryptModuleIdx)
+          if kiv:
+            iv,key = kiv
+        else:
+          decryptModuleIdx = None
+          iv = ""
+          key = ""
+        if coreFWKEYDBLib.testDecryption(data=data, iv=iv, key=key):
+          decryptionWasSuccessful = True
+          break
 
-    if not decryptionWasSuccessful:
-      print("[!] Failed to decrypt component '%s'"%(cKey))
-      if not hasAnyKeys:
-        continue
-      assert not BAD_KEYS_ARE_FATAL
-      if iv or key:
-        iv = None
-        key = None
-    else:
-      if iv and key:
-        print("[.] decryptd component '%s' with iv '%s' key '%s'"%(cKey,iv,key))
-        hasAnyKeys = True
+      if not decryptionWasSuccessful:
+        print("[!] Failed to decrypt component '%s'"%(cKey))
+        if not hasAnyKeys:
+          continue
+        assert not BAD_KEYS_ARE_FATAL
+        if iv or key:
+          iv = None
+          key = None
+      else:
+        if iv and key:
+          print("[.] decryptd component '%s' with iv '%s' key '%s'"%(cKey,iv,key))
+          hasAnyKeys = True
 
       processedFilesHashes[digest] = {
         "iv": iv,
