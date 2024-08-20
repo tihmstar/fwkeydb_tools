@@ -24,7 +24,11 @@ def processBuildID(url, buildID, build, vers):
   date = coreFWKEYDBLib.getDate()
   cpid = int(buildID["ApChipID"],16)
   bdid = int(buildID["ApBoardID"],16)
-  product = irecv_device.productForCPIDAndBDID(cpid,bdid)
+  try:
+    product = irecv_device.productForCPIDAndBDID(cpid,bdid)
+  except Exception as e:
+    print("[!] Unknown device exception:",e)
+    return
   pathkeysdirs = KEYS_DIRECTORY + "firmware/%s/0x%x/"%(product,cpid)
   pathkeysfile = pathkeysdirs + build
   keysfile = {}
