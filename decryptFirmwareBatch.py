@@ -12,12 +12,12 @@ import irecv_device
 
 SKIP_EXISTING_KEYFILES = False
 BAD_KEYS_ARE_FATAL=True
-
+CPID_DYNAMIC_BLACKLIST_RETRIES_COUNT = 3
 
 KEYS_DIRECTORY = "keys/"
 
 processedFilesHashes = {}
-
+cpid_dynamic_blacklist = {}
 
 def processBuildID(url, buildID, build, vers):
   global processedFilesHashes
@@ -37,6 +37,11 @@ def processBuildID(url, buildID, build, vers):
   isOta = url[-4:] == ".zip"
   needsAnyKeys = False
   f = None
+  cpid_decrypt_attempt = cpid_dynamic_blacklist.get(cpid, 0)
+  if CPID_DYNAMIC_BLACKLIST_RETRIES_COUNT and cpid_decrypt_attempt > CPID_DYNAMIC_BLACKLIST_RETRIES_COUNT:
+    print("[!] Skipping attempt to generate keyfile without available decryptor for cpid '%s'"%(hex(cpid)))
+    return
+
   try:
     f = open(pathkeysfile,"rb")
   except FileNotFoundError:
@@ -200,6 +205,7 @@ def processBuildID(url, buildID, build, vers):
       print("[*] saved keysfile to '%s'"%(pathkeysfile))
   else:
     print("[-] Skipping file without any decrypted keys '%s'"%(pathkeysfile))
+    cpid_dynamic_blacklist[cpid] = cpid_decrypt_attempt + 1
 
 def processUrl(url):
   print("[+] Processing '%s'"%(url))
