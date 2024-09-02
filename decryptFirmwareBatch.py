@@ -99,9 +99,11 @@ def processBuildID(url, buildID, build, vers):
       iv = ikk["iv"]
       key = ikk["key"]
       kbag = ikk["kbag"]
+      print("[.] cached component '%s' with iv '%s' key '%s' kbag '%s'"%(cKey,iv,key,kbag))
+      if len(kbag):
+        needsAnyKeys = True
       if iv and key:
-          print("[.] cached component '%s' with iv '%s' key '%s'"%(cKey,iv,key))
-          hasAnyKeys = True
+        hasAnyKeys = True
     else:
       print("[.] downloading component '%s' (%s)"%(cKey,filename))
       data = coreFWKEYDBLib.downloadFileFromFirmware(url, filename)
@@ -110,6 +112,8 @@ def processBuildID(url, buildID, build, vers):
         continue
       try:
         kbag = coreFWKEYDBLib.getKBAGFromFiledata(data)
+        if len(kbag):
+          needsAnyKeys = True
       except coreFWKEYDBLib.KeybagException:
         print("[!] Failed to get keybag for component '%s' (%s), skipping component!"%(cKey,filename))
         continue
@@ -121,7 +125,6 @@ def processBuildID(url, buildID, build, vers):
       while decryptModuleIdx != None:
         decryptModuleIdx += 1
         if len(kbag):
-          needsAnyKeys = True
           kiv,decryptModuleIdx = moduleDecryptor.decryptKBAG(component=cKey, cpid=cpid, kbag=kbag, startModuleIndex=decryptModuleIdx)
           if kiv:
             iv,key = kiv
@@ -203,7 +206,10 @@ def processBuildID(url, buildID, build, vers):
       pass
     with open(pathkeysfile,"wb") as f:
       f.write(bytes(json.dumps(keysfile, indent=1), "UTF-8"))
-      print("[*] saved keysfile to '%s'"%(pathkeysfile))
+      if hasAnyKeys:
+        print("[*] saved keysfile with keys to '%s'"%(pathkeysfile))
+      else:
+        print("[*] saved keysfile without keys to '%s'"%(pathkeysfile))
   else:
     print("[-] Skipping file without any decrypted keys '%s'"%(pathkeysfile))
     cpid_dynamic_blacklist[cpid] = cpid_decrypt_attempt + 1
