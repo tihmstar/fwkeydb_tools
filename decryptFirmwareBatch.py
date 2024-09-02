@@ -11,7 +11,8 @@ import irecv_device
 #RUN: ./listURLsForDevice.sh iPhone7,2 | python decryptFirmwareBatch.py -
 
 SKIP_EXISTING_KEYFILES = False
-BAD_KEYS_ARE_FATAL=True
+BAD_KEYS_ARE_FATAL = True
+FAILED_VERIFICATION_ON_EMPTY_KBAG_IS_FATAL = False
 CPID_DYNAMIC_BLACKLIST_RETRIES_COUNT = 3
 
 KEYS_DIRECTORY = "keys/"
@@ -136,13 +137,13 @@ def processBuildID(url, buildID, build, vers):
         print("[!] Failed to decrypt component '%s'"%(cKey))
         if not hasAnyKeys:
           continue
-        assert not BAD_KEYS_ARE_FATAL
+        assert not BAD_KEYS_ARE_FATAL or (not FAILED_VERIFICATION_ON_EMPTY_KBAG_IS_FATAL and not len(kbag))
         if iv or key:
           iv = None
           key = None
       else:
         if iv and key:
-          print("[.] decryptd component '%s' with iv '%s' key '%s'"%(cKey,iv,key))
+          print("[.] decrypted component '%s' with iv '%s' key '%s'"%(cKey,iv,key))
           hasAnyKeys = True
 
       processedFilesHashes[digest] = {
