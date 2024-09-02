@@ -5,6 +5,8 @@ import binascii
 import coreFWKEYDBLib
 import irecv_device
 
+FAILED_VERIFICATION_ON_EMPTY_KBAG_IS_FATAL = False
+
 class VersionMismatchException(Exception):
     pass
 
@@ -111,8 +113,11 @@ def processKeyfilePaths(path):
               raise BadKeyEntryException("Got only one of (iv,key) but not both!")
             eprint("[.] Testing decryption of file '%s' ... "%(mFilename), end="")
             if not coreFWKEYDBLib.testDecryption(data, dec_iv, dec_key):
-              eprint("FAIL")
-              raise BadKeyEntryException("Bad IV/KEY. Decryption failed for file '%s'"%(mFilename))
+              if len(kkbag) or FAILED_VERIFICATION_ON_EMPTY_KBAG_IS_FATAL:
+                eprint("FAIL")
+                raise BadKeyEntryException("Bad IV/KEY. Decryption failed for file '%s'"%(mFilename))
+              else:
+                eprint("FAIL but ", end="")
             eprint("OK")
           else:
             eprint("[.] Skipping decryption of file without iv/key '%s'"%(mFilename))
