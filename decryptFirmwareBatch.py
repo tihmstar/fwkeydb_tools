@@ -132,7 +132,7 @@ def processBuildID(url, buildID, build, vers):
           decryptionWasSuccessful = True
           break
 
-      if not decryptionWasSuccessful:
+      if (iv != None or key != None) and not decryptionWasSuccessful:
         print("[!] Failed to decrypt component '%s'"%(cKey))
         if not hasAnyKeys:
           continue
