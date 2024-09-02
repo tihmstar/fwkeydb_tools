@@ -106,14 +106,16 @@ def processKeyfilePaths(path):
             raise BadKeyEntryException("KBAG mismatch for file '%s' stored != real ('%s' != '%s')"%(mFilename,kkbag,real_kbag))
           dec_iv = kElem.get("iv", None)
           dec_key = kElem.get("key", None)
-          if dec_iv or dec_key:
-            if not dec_iv or not dec_key:
+          if dec_iv != None or dec_iv != None:
+            if (not dec_iv and dec_key) or (not dec_key and dec_iv):
               raise BadKeyEntryException("Got only one of (iv,key) but not both!")
-          eprint("[.] Testing decryption of file '%s' ... "%(mFilename), end="")
-          if not coreFWKEYDBLib.testDecryption(data, dec_iv, dec_key):
-            eprint("FAIL")
-            raise BadKeyEntryException("Bad IV/KEY. Decryption failed for file '%s'"%(mFilename))
-          eprint("OK")
+            eprint("[.] Testing decryption of file '%s' ... "%(mFilename), end="")
+            if not coreFWKEYDBLib.testDecryption(data, dec_iv, dec_key):
+              eprint("FAIL")
+              raise BadKeyEntryException("Bad IV/KEY. Decryption failed for file '%s'"%(mFilename))
+            eprint("OK")
+          else:
+            eprint("[.] Skipping decryption of file without iv/key '%s'"%(mFilename))
           del keys[mFilename]
   if len(keys):
     raise UnverifiedEntriesException("Failed to validate the following components:",keys.keys())
