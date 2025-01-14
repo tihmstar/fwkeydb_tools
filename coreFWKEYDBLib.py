@@ -19,7 +19,7 @@ def isBuildIdentityValidForCPIDAndBDID(buildID, cpid, bdid):
   bid_bdid = int(buildID["ApBoardID"],16)
   return bid_cpid == cpid and bid_bdid == bdid
 
-def downloadFileFromFirmware(url, path):
+def downloadFileFromFirmware(url, path, component = ""):
   p = subprocess.Popen("pzb -g %s -o - %s 2>/dev/null"%(path,url), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
   output = p.stdout.read()
   if not len(output):
@@ -27,6 +27,9 @@ def downloadFileFromFirmware(url, path):
     output = p.stdout.read()
   if not len(output):
     p = subprocess.Popen("pzb -g AssetData/payload/replace/usr/standalone/update/ramdisk/%s -o - %s 2>/dev/null"%(path,url), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    output = p.stdout.read()
+  if not len(output) and component == "RestoreRamDisk":
+    p = subprocess.Popen("pzb -g AssetData/payload/replace/usr/standalone/update/ramdisk/armv7kSURamDisk.dmg -o - %s 2>/dev/null"%(url), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     output = p.stdout.read()
   return output
 

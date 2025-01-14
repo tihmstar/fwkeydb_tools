@@ -97,8 +97,11 @@ def processKeyfilePaths(path):
           if not mDigest in kDigests:
             raise BadKeyEntryException("Digest mismatch for file '%s' stored != real ('%s' != '%s')"%(mFilename,kDigests,mDigest))
           eprint("[.] Downloading file '%s'"%(mFilename))
+          downloadComponent = ""
+          if "RestoreRamDisk" in kElem["names"]:
+            downloadComponent = "RestoreRamDisk"
           try:
-            data = coreFWKEYDBLib.downloadFileFromFirmware(url, kFilename)
+            data = coreFWKEYDBLib.downloadFileFromFirmware(url, kFilename, downloadComponent)
           except:
             eprint("[!] Failed to download '%s' from '%s'"%(kFilename,url))
             continue

@@ -106,7 +106,7 @@ def processBuildID(url, buildID, build, vers):
         hasAnyKeys = True
     else:
       print("[.] downloading component '%s' (%s)"%(cKey,filename))
-      data = coreFWKEYDBLib.downloadFileFromFirmware(url, filename)
+      data = coreFWKEYDBLib.downloadFileFromFirmware(url, filename, cKey)
       if not len(data):
         print("[!] Failed downloading component '%s' (%s), skipping component!"%(cKey,filename))
         continue
