@@ -94,7 +94,7 @@ def processBuildID(url, buildID, build, vers):
     variant = coreFWKEYDBLib.getVariantFromBuildIdentity(buildID)
     elemKey = filename
     digestPrintable = binascii.hexlify(digest).decode("UTF-8")
-    if digest in processedFilesHashes:
+    if digest in processedFilesHashes and (hasAnyRamdisk or cKey != "RestoreRamDisk"):
       ikk = processedFilesHashes[digest]
       iv = ikk["iv"]
       key = ikk["key"]
