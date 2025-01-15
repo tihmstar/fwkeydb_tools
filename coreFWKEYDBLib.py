@@ -31,6 +31,9 @@ def downloadFileFromFirmware(url, path, component = ""):
   if not len(output) and component == "RestoreRamDisk":
     p = subprocess.Popen("pzb -g AssetData/payload/replace/usr/standalone/update/ramdisk/armv7kSURamDisk.dmg -o - %s 2>/dev/null"%(url), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     output = p.stdout.read()
+  if not len(output) and component == "RestoreRamDisk":
+    p = subprocess.Popen("pzb -g AssetData/payload/replace/usr/standalone/update/ramdisk/arm64SURamDisk.dmg -o - %s 2>/dev/null"%(url), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    output = p.stdout.read()
   return output
 
 def listFilesInUrl(url):
