@@ -106,8 +106,11 @@ def processKeyfilePaths(path):
             eprint("[!] Failed to download '%s' from '%s'"%(kFilename,url))
             continue
           kkbag = kElem["kbag"]
-          real_kbag = coreFWKEYDBLib.getKBAGFromFiledata(data)
-          if kkbag != real_kbag:
+          try:
+            real_kbag = coreFWKEYDBLib.getKBAGFromFiledata(data)
+          except coreFWKEYDBLib.KeybagException:
+            real_kbag = None
+          if kkbag != real_kbag and real_kbag != None:
             raise BadKeyEntryException("KBAG mismatch for file '%s' stored != real ('%s' != '%s')"%(mFilename,kkbag,real_kbag))
           dec_iv = kElem.get("iv", None)
           dec_key = kElem.get("key", None)
@@ -115,7 +118,7 @@ def processKeyfilePaths(path):
             if (not dec_iv and dec_key) or (not dec_key and dec_iv):
               raise BadKeyEntryException("Got only one of (iv,key) but not both!")
             eprint("[.] Testing decryption of file '%s' ... "%(mFilename), end="")
-            if not coreFWKEYDBLib.testDecryption(data, dec_iv, dec_key):
+            if real_kbag == None or not coreFWKEYDBLib.testDecryption(data, dec_iv, dec_key):
               if len(kkbag) or FAILED_VERIFICATION_ON_EMPTY_KBAG_IS_FATAL:
                 eprint("FAIL")
                 raise BadKeyEntryException("Bad IV/KEY. Decryption failed for file '%s'"%(mFilename))
