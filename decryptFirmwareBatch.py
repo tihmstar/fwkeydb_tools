@@ -10,6 +10,7 @@ import irecv_device
 
 #RUN: ./listURLsForDevice.sh iPhone7,2 | python decryptFirmwareBatch.py -
 
+IRGNORE_MISSING_RAMDISK = False
 SKIP_EXISTING_KEYFILES = False
 BAD_KEYS_ARE_FATAL = True
 FAILED_VERIFICATION_ON_EMPTY_KBAG_IS_FATAL = False
@@ -192,7 +193,7 @@ def processBuildID(url, buildID, build, vers):
   if url[0:4] != "http":
     print("[!] Skipping non-remote url '%s'"%(url))
   else:
-    if not isOta or hasAnyRamdisk:
+    if not isOta or hasAnyRamdisk or IRGNORE_MISSING_RAMDISK:
       urls = keysfile.get("urls", [])
       if not url in urls:
         urls.append(url)
@@ -234,7 +235,19 @@ def processUrl(url):
   for buildID in buildmanifest["BuildIdentities"]:
     processBuildID(url, buildID, build, vers)
 
-    
+
+def checkenv(var):
+  v = os.getenv(var)
+  if not v:
+    return False
+  try:
+    if int(v):
+      print("%s=True"%(var))
+      return True
+  except:
+    pass
+  return False
+
 if __name__ == '__main__':
   f = None
   # if len(sys.argv) < 2:
@@ -242,6 +255,8 @@ if __name__ == '__main__':
 
   moduleDecryptor.init()
   f = sys.stdin
+
+  IRGNORE_MISSING_RAMDISK = checkenv("IRGNORE_MISSING_RAMDISK")
 
   fileIsEOF = False
   while True:
