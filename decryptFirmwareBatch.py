@@ -10,7 +10,6 @@ import irecv_device
 
 #RUN: ./listURLsForDevice.sh iPhone7,2 | python decryptFirmwareBatch.py -
 
-IRGNORE_MISSING_RAMDISK = False
 SKIP_EXISTING_KEYFILES = False
 BAD_KEYS_ARE_FATAL = True
 FAILED_VERIFICATION_ON_EMPTY_KBAG_IS_FATAL = False
@@ -20,6 +19,10 @@ KEYS_DIRECTORY = "keys/"
 
 processedFilesHashes = {}
 cpid_dynamic_blacklist = {}
+
+#env set vars
+FIRMWARE_CACHE_PATH = None
+IRGNORE_MISSING_RAMDISK = False
 
 def processBuildID(url, buildID, build, vers):
   global processedFilesHashes
@@ -248,6 +251,14 @@ def checkenv(var):
     pass
   return False
 
+def readenv(var):
+  v = os.getenv(var)
+  if not v:
+    return None
+  print("%s='%s'"%(var,v))
+  return v
+
+
 if __name__ == '__main__':
   f = None
   # if len(sys.argv) < 2:
@@ -257,6 +268,11 @@ if __name__ == '__main__':
   f = sys.stdin
 
   IRGNORE_MISSING_RAMDISK = checkenv("IRGNORE_MISSING_RAMDISK")
+  FIRMWARE_CACHE_PATH = readenv("FIRMWARE_CACHE_PATH")
+  if FIRMWARE_CACHE_PATH != None:
+    if FIRMWARE_CACHE_PATH[-1] != '/':
+      FIRMWARE_CACHE_PATH += '/'
+    coreFWKEYDBLib.setFirmwareCachePath(FIRMWARE_CACHE_PATH)
 
   fileIsEOF = False
   while True:

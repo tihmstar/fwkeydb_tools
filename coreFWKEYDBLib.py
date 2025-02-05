@@ -5,6 +5,8 @@ import makeBuildManifestFromRestoreplist
 
 CURRENT_KEYFILES_VERSION = "1.0"
 
+FIRMWARE_CACHE_PATH = None
+
 class BadImageException(Exception):
   pass
 
@@ -14,12 +16,23 @@ class KeybagException(Exception):
 def getDate():
   return datetime.now().strftime("%FT%TZ")
 
+def setFirmwareCachePath(path):
+  global FIRMWARE_CACHE_PATH
+  FIRMWARE_CACHE_PATH = path
+  print("Set FIRMWARE_CACHE_PATH='%s'"%(FIRMWARE_CACHE_PATH))
+
 def isBuildIdentityValidForCPIDAndBDID(buildID, cpid, bdid):
   bid_cpid = int(buildID["ApChipID"],16)
   bid_bdid = int(buildID["ApBoardID"],16)
   return bid_cpid == cpid and bid_bdid == bdid
 
 def downloadFileFromFirmware(url, path, component = ""):
+  if FIRMWARE_CACHE_PATH != None:
+    urlp = url.split("/")[-1]
+    nurl = "file://"+FIRMWARE_CACHE_PATH+urlp
+    # print("Loading '%s' from cache at '%s'"%(url,nurl))
+    url = nurl
+
   p = subprocess.Popen("pzb -g %s -o - %s 2>/dev/null"%(path,url), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
   output = p.stdout.read()
   if not len(output):
