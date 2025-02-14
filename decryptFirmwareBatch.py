@@ -258,7 +258,6 @@ def readenv(var):
   print("%s='%s'"%(var,v))
   return v
 
-
 if __name__ == '__main__':
   f = None
   # if len(sys.argv) < 2:

@@ -1,6 +1,7 @@
 import json
 import sys
 import binascii
+import os
 
 import coreFWKEYDBLib
 import irecv_device
@@ -131,8 +132,21 @@ def processKeyfilePaths(path):
   if len(keys):
     raise UnverifiedEntriesException("Failed to validate the following components:",keys.keys())
 
+def readenv(var):
+  v = os.getenv(var)
+  if not v:
+    return None
+  print("%s='%s'"%(var,v))
+  return v
+
 if __name__ == '__main__':
   f = sys.stdin
+
+  FIRMWARE_CACHE_PATH = readenv("FIRMWARE_CACHE_PATH")
+  if FIRMWARE_CACHE_PATH != None:
+    if FIRMWARE_CACHE_PATH[-1] != '/':
+      FIRMWARE_CACHE_PATH += '/'
+    coreFWKEYDBLib.setFirmwareCachePath(FIRMWARE_CACHE_PATH)
 
   numberOfUnsuccessfullKeyfiles = 0
 

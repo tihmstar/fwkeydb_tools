@@ -26,13 +26,7 @@ def isBuildIdentityValidForCPIDAndBDID(buildID, cpid, bdid):
   bid_bdid = int(buildID["ApBoardID"],16)
   return bid_cpid == cpid and bid_bdid == bdid
 
-def downloadFileFromFirmware(url, path, component = ""):
-  if FIRMWARE_CACHE_PATH != None:
-    urlp = url.split("/")[-1]
-    nurl = "file://"+FIRMWARE_CACHE_PATH+urlp
-    # print("Loading '%s' from cache at '%s'"%(url,nurl))
-    url = nurl
-
+def downloadFileFromFirmwareInternal(url, path, component = ""):
   p = subprocess.Popen("pzb -g %s -o - %s 2>/dev/null"%(path,url), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
   output = p.stdout.read()
   if not len(output):
@@ -48,6 +42,17 @@ def downloadFileFromFirmware(url, path, component = ""):
     p = subprocess.Popen("pzb -g AssetData/payload/replace/usr/standalone/update/ramdisk/arm64SURamDisk.dmg -o - %s 2>/dev/null"%(url), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     output = p.stdout.read()
   return output
+
+def downloadFileFromFirmware(url, path, component = ""):
+  origurl = url
+  if FIRMWARE_CACHE_PATH != None:
+    urlp = url.split("/")[-1]
+    nurl = "file://"+FIRMWARE_CACHE_PATH+urlp
+    url = nurl
+  ret = downloadFileFromFirmwareInternal(url, path, component)
+  if not len(ret) and FIRMWARE_CACHE_PATH != None:
+    ret = downloadFileFromFirmwareInternal(origurl, path, component)
+  return ret
 
 def listFilesInUrl(url):
   p = subprocess.Popen("pzb -l %s"%(url), shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
