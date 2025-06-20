@@ -8,6 +8,9 @@ import coreFWKEYDBLib
 class VersionMismatchException(Exception):
     pass
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 keybags = {}
 
 def processKeyfilePaths(path):
@@ -21,6 +24,10 @@ def processKeyfilePaths(path):
 
   for filename,elem in keys.items():
     kbag = elem["kbag"]
+    if not "iv" in elem:
+      continue
+    if not "key" in elem:
+      continue
     iv = elem["iv"]
     key = elem["key"]
     if not len(kbag):
@@ -57,7 +64,7 @@ if __name__ == '__main__':
       processKeyfilePaths(l)
       keyFileIsSuccessfull = True
     except:
-      pass
+      eprint("Failed processing %s"%(l))
     if not keyFileIsSuccessfull:
       numberOfUnsuccessfullKeyfiles +=1
 
