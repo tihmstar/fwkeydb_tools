@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import binascii
+import copy
 
 import moduleDecryptor 
 import coreFWKEYDBLib
@@ -26,7 +27,6 @@ IRGNORE_MISSING_RAMDISK = False
 
 def processBuildID(url, buildID, build, vers):
   global processedFilesHashes
-  date = coreFWKEYDBLib.getDate()
   cpid = int(buildID["ApChipID"],16)
   bdid = int(buildID["ApBoardID"],16)
   try:
@@ -158,7 +158,7 @@ def processBuildID(url, buildID, build, vers):
         "key": key,
         "kbag": kbag,
       }
-    elemValue = keys.get(elemKey, {})
+    elemValue = copy.copy(keys.get(elemKey, {}))
     elemValue["kbag"] = kbag
     elemValue["filename"] = filename
     elemDigests = elemValue.get("digests", [])
@@ -190,7 +190,7 @@ def processBuildID(url, buildID, build, vers):
         #Don't just update the date
         continue
 
-    elemValue["date"] = date
+    elemValue["date"] = coreFWKEYDBLib.getDate()
     keys[elemKey] = elemValue
     keysfile["keys"] = keys
 
