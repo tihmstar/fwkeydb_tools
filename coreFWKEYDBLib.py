@@ -148,7 +148,7 @@ def testIMG4Decryption(data, iv, key):
     raise BadImageException("Failed to read im4p image")
   firstblock = output[0:16]
   restblocks = output[16:]
-  if b"Apple" in restblocks or b"iBoot" in restblocks or b"\x00"*16 in restblocks:
+  if b"Apple" in restblocks or b"iBoot" in restblocks or b"legion" in restblocks or b"\x00"*16 in restblocks:
     return True
   return False
 

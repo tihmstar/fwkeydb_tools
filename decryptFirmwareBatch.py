@@ -178,6 +178,10 @@ def processBuildID(url, buildID, build, vers):
         elemVariants.append(variant)
     elemValue["variants"] = elemVariants
 
+    if iv != None and key != None:
+      elemValue["iv"] = iv
+      elemValue["key"] = key
+
     if True:
       old_elemValue = keys.get(elemKey, {})
       old_date = old_elemValue.get("date", None)
@@ -188,9 +192,6 @@ def processBuildID(url, buildID, build, vers):
 
     elemValue["date"] = date
     keys[elemKey] = elemValue
-    if iv != None and key != None:
-      keys[elemKey]["iv"] = iv
-      keys[elemKey]["key"] = key
     keysfile["keys"] = keys
 
   if url[0:4] != "http":
