@@ -277,7 +277,7 @@ if __name__ == '__main__':
   fileIsEOF = False
   while True:
     l = ""
-    while not f.closed:
+    while True:
       c = f.read(1)
       if c == "":
         fileIsEOF = True
@@ -285,6 +285,6 @@ if __name__ == '__main__':
       if c == '\n':
         break
       l+=c
-    if fileIsEOF or f.closed:
+    if fileIsEOF:
       break
     processUrl(l)
