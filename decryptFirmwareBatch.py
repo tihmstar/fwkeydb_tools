@@ -145,9 +145,8 @@ def processBuildID(url, buildID, build, vers):
         if not hasAnyKeys:
           continue
         assert not BAD_KEYS_ARE_FATAL or (not FAILED_VERIFICATION_ON_EMPTY_KBAG_IS_FATAL and not len(kbag))
-        if iv or key:
-          iv = None
-          key = None
+        iv = None
+        key = None
       else:
         if iv and key:
           print("[.] decrypted component '%s' with iv '%s' key '%s'"%(cKey,iv,key))
