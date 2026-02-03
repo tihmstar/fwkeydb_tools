@@ -233,6 +233,8 @@ def getRamdiskTypeForBuildIdentity(buildident):
   else:
     if variant == "Customer Software Update".lower():
       return "OTARamdisk"
+    elif variant == "Developer Software Update".lower():
+      return "OTARamdisk"
     elif variant == "Recovery Customer Install".lower():
       return None
     else:
