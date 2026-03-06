@@ -24,7 +24,7 @@ def decryptKBAG(component, cpid, kbag):
     #No tty device configured
     return None
   try:
-    ser = serial.Serial(PONGO_DECRYPTOR_TTY_PATH, 115200, timeout=2)
+    ser = serial.Serial(PONGO_DECRYPTOR_TTY_PATH, 115200, timeout=1)
   except:
     eprint("Failed to open serial device '%s'"%(PONGO_DECRYPTOR_TTY_PATH))
     return None

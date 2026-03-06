@@ -3,6 +3,7 @@ import os
 import json
 import binascii
 import copy
+import hashlib
 
 import moduleDecryptor 
 import coreFWKEYDBLib
@@ -81,7 +82,7 @@ def processBuildID(url, buildID, build, vers):
 
   keys = keysfile.get("keys", {})
   for cKey,cVal in manifest.items():
-    if not "Digest" in cVal:
+    if not "Digest" in cVal and not "PartialDigest" in cVal:
       continue
     if cKey == "OS":
       continue
@@ -90,15 +91,19 @@ def processBuildID(url, buildID, build, vers):
     if cKey == "RestoreRamDisk":
       cKeySecondName = coreFWKEYDBLib.getRamdiskTypeForBuildIdentity(buildID)
       curElemIsRamdisk = True
-    digest = cVal["Digest"]
+    if "Digest" in cVal:
+      digest = cVal["Digest"]
+    else:
+      digest = None
     filename = cVal["Info"]["Path"]
     kbag = None
     iv = None
     key = None
     variant = coreFWKEYDBLib.getVariantFromBuildIdentity(buildID)
     elemKey = filename
-    digestPrintable = binascii.hexlify(digest).decode("UTF-8")
-    if digest in processedFilesHashes and (hasAnyRamdisk or cKey != "RestoreRamDisk"):
+    if digest:
+      digestPrintable = binascii.hexlify(digest).decode("UTF-8")
+    if digest and digest in processedFilesHashes and (hasAnyRamdisk or cKey != "RestoreRamDisk"):
       ikk = processedFilesHashes[digest]
       iv = ikk["iv"]
       key = ikk["key"]
@@ -114,6 +119,9 @@ def processBuildID(url, buildID, build, vers):
       if not len(data):
         print("[!] Failed downloading component '%s' (%s), skipping component!"%(cKey,filename))
         continue
+      if not digest:
+        digest = hashlib.sha1(data).digest()
+        digestPrintable = binascii.hexlify(digest).decode("UTF-8")
       try:
         kbag = coreFWKEYDBLib.getKBAGFromFiledata(data)
         if len(kbag):
