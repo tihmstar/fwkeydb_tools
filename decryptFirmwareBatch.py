@@ -109,7 +109,7 @@ def processBuildID(url, buildID, build, vers):
       key = ikk["key"]
       kbag = ikk["kbag"]
       print("[.] cached component '%s' with iv '%s' key '%s' kbag '%s'"%(cKey,iv,key,kbag))
-      if len(kbag):
+      if len(kbag) and not "sep" in cKey.lower():
         needsAnyKeys = True
       if iv and key:
         hasAnyKeys = True
@@ -124,7 +124,7 @@ def processBuildID(url, buildID, build, vers):
         digestPrintable = binascii.hexlify(digest).decode("UTF-8")
       try:
         kbag = coreFWKEYDBLib.getKBAGFromFiledata(data)
-        if len(kbag):
+        if len(kbag) and not "sep" in cKey.lower():
           needsAnyKeys = True
       except coreFWKEYDBLib.KeybagException:
         print("[!] Failed to get keybag for component '%s' (%s), skipping component!"%(cKey,filename))
